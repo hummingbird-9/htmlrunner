@@ -9,7 +9,7 @@ body {
 }
 
 h1.title {
-  background: #00e00a;
+  background: #00a457;
   color: white;
   margin: 0;
   padding: 10px 15px;
@@ -49,7 +49,7 @@ h1.title {
 }
 
 #uploadBtn:hover, #addFileBtn:hover {
-  background: #4a559d;
+  background: #00a457;
 }
 
 #fileList {
@@ -68,7 +68,7 @@ h1.title {
 }
 
 #fileList li.active {
-  background: #00e00a;
+  background: #00a457;
   color: white;
 }
 
@@ -105,14 +105,14 @@ h1.title {
 }
 
 #saveFileBtn, #runBtn {
-  background: #00e00a;
+  background: #00a457;
   color: white;
   border: none;
   cursor: pointer;
 }
 
 #saveFileBtn:hover, #runBtn:hover {
-  background: #4a559d;
+  background: #00a457;
 }
 
 #codeEditor {
