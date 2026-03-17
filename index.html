@@ -2,22 +2,239 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Code Editor</title>
+    <title>Advanced Multi-file Code & GLSL Shader Editor (Green Theme)</title>
     <link rel="stylesheet" href="styles.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css" rel="stylesheet" />
+    <style>
+        /* Green theme colors */
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          margin: 0;
+          padding: 0;
+          height: 100vh;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          background: #0a1f0a;
+          color: #b0d187;
+        }
+
+        h1.title {
+          background: #2a4a1a;
+          color: #d1fc9c;
+          margin: 0;
+          padding: 10px 15px;
+          font-weight: normal;
+          text-shadow: 0 0 4px #415d2e;
+        }
+
+        #mainContainer {
+          display: flex;
+          flex: 1;
+          height: calc(100vh - 50px);
+          overflow: hidden;
+          border-top: 1px solid #304b17;
+        }
+
+        #fileListPanel {
+          width: 180px;
+          border-right: 1px solid #304b17;
+          display: flex;
+          flex-direction: column;
+          background: #112611;
+        }
+
+        #fileManagerHeader {
+          display: flex;
+          flex-direction: column;
+          padding: 10px;
+          border-bottom: 1px solid #304b17;
+        }
+
+        #uploadBtn, #addFileBtn {
+          margin-bottom: 5px;
+          padding: 6px;
+          font-size: 14px;
+          background: #3e7f11;
+          color: #d1fc9c;
+          border: none;
+          border-radius: 3px;
+          cursor: pointer;
+          text-shadow: 0 0 2px #81be3f;
+        }
+
+        #uploadBtn:hover, #addFileBtn:hover {
+          background: #5f9e20;
+        }
+
+        #tabSelect {
+          background: #1f4510;
+          color: #b0d187;
+          border-radius: 3px;
+          border: none;
+          padding: 6px;
+          font-size: 14px;
+          cursor: pointer;
+          box-shadow: none;
+          margin-top: 5px;
+        }
+
+        #fileList {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          overflow-y: auto;
+          flex: 1;
+        }
+
+        #fileList li {
+          cursor: pointer;
+          padding: 6px 10px;
+          border-bottom: 1px solid #1a3910;
+          user-select: none;
+          color: #a7d081;
+        }
+
+        #fileList li.active {
+          background: #5f9e20;
+          color: white;
+          font-weight: bold;
+        }
+
+        #fileList li:hover:not(.active) {
+          background: #487a12;
+        }
+
+        #editorPanel {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          border-right: 1px solid #304b17;
+          overflow: hidden;
+          background: #122911;
+        }
+
+        #editorHeader {
+          padding: 10px;
+          background: #1f4510;
+          border-bottom: 1px solid #304b17;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        #languageSelect, #saveFileBtn, #runBtn {
+          font-size: 14px;
+          padding: 6px 12px;
+          border-radius: 3px;
+          border: none;
+          background: #3e7f11;
+          color: #d1fc9c;
+          cursor: pointer;
+          text-shadow: 0 0 2px #81be3f;
+          transition: background-color 0.3s ease;
+        }
+
+        #languageSelect:disabled {
+          opacity: 0.5;
+          cursor: default;
+        }
+
+        #saveFileBtn:hover, #runBtn:hover, #languageSelect:hover:not(:disabled) {
+          background: #5f9e20;
+        }
+
+        #codeEditor {
+          flex: 1;
+          height: 100%;
+          background: #122911;
+          color: #b0d187;
+        }
+
+        .CodeMirror {
+          height: 100%;
+          font-size: 14px;
+          line-height: 1.4;
+          background: #122911;
+          color: #b0d187;
+        }
+
+        /* Override CodeMirror cursor and selection for green theme */
+        .CodeMirror-cursor {
+          border-left: 1px solid #9ae656 !important;
+        }
+        .CodeMirror-selected {
+          background: #37590d !important;
+        }
+
+        #outputPanel {
+          width: 420px;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          background: #122911;
+          border-left: 1px solid #304b17;
+          position: relative;
+        }
+
+        #outputPanel h2 {
+          margin: 0;
+          padding: 10px 15px;
+          background: #1f4510;
+          border-bottom: 1px solid #304b17;
+          font-weight: normal;
+          color: #d1fc9c;
+          text-shadow: 0 0 3px #81be3f;
+        }
+
+        #htmlOutput, #shaderCanvas {
+          flex: 1;
+          width: 100%;
+          border: none;
+          background: #000;
+          display: none;
+        }
+
+        #htmlOutput.active, #shaderCanvas.active {
+          display: block;
+        }
+
+        #javaOutput {
+          display: none;
+          white-space: pre-wrap;
+          color: #b0d187;
+          font-family: Consolas, monospace;
+          padding: 15px;
+          overflow: auto;
+          background: #122911;
+          flex: 1;
+        }
+
+        /* Scrollbar styles */
+        #fileList::-webkit-scrollbar {
+          width: 8px;
+        }
+        #fileList::-webkit-scrollbar-thumb {
+          background: #3e7f11;
+          border-radius: 4px;
+        }
+        #fileList::-webkit-scrollbar-thumb:hover {
+          background: #5f9e20;
+        }
+    </style>
 </head>
 <body>
-    <h1 class="title">Code Editor</h1>
+    <h1 class="title">Multi-file + GLSL Shader + Minecraft 3D Editor</h1>
     <div id="mainContainer">
         <div id="fileListPanel">
             <div id="fileManagerHeader">
                 <button id="addFileBtn">Add File +</button>
                 <input type="file" multiple id="uploadFiles" style="display:none" />
                 <button id="uploadBtn">Upload Files</button>
+                <!-- Removed Minecraft tab as requested -->
                 <select id="tabSelect" title="Switch workspace tab" aria-label="Workspace tabs">
                     <option value="files">Files Editor</option>
                     <option value="shader">GLSL Shader Editor</option>
-                    <option value="minecraft">Minecraft 3D Scene</option>
                 </select>
             </div>
             <ul id="fileList"></ul>
@@ -28,11 +245,13 @@
                 <button id="saveFileBtn">Save File</button>
                 <button id="runBtn">Run</button>
             </div>
+
+            <!-- Files Editor -->
             <textarea id="codeEditor"></textarea>
 
-            <!-- GLSL Shader Editor controls (hidden by default) -->
+            <!-- GLSL Shader Editor -->
             <div id="shaderEditor" style="display:none; height: 100%; flex-direction: column;">
-                <div style="display:flex; gap:10px; height: 45%;">
+                <div style="display:flex; gap:10px; height: 100%;">
                     <div style="flex:1; display:flex; flex-direction: column;">
                         <h4 style="margin:4px 0 2px 0; color:#b0d187;">Vertex Shader</h4>
                         <textarea id="vertexShaderCode" style="flex:1; font-family: monospace; font-size: 13px;"></textarea>
@@ -48,12 +267,11 @@
             <h2>Output</h2>
             <iframe id="htmlOutput"></iframe>
             <pre id="javaOutput" style="display:none;"></pre>
-
-            <canvas id="shaderCanvas" style="display:none; width: 100%; height: 100%; background:#111;"></canvas>
-            <div id="minecraftContainer" style="display:none; width: 100%; height: 100%; background: #102010;"></div>
+            <canvas id="shaderCanvas" style="background:#111;"></canvas>
         </div>
     </div>
 
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/htmlmixed/htmlmixed.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/css/css.min.js"></script>
@@ -61,8 +279,272 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/json/json.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/clike/clike.min.js"></script>
 
+    <!-- Three.js for Minecraft-like 3D -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
 
-    <script src="script.js"></script>
+    <script>
+        // Basic file editor management, CodeMirror init
+        let currentTab = 'files';
+        const fileList = [];
+        let currentFileIndex = -1;
+
+        const tabSelect = document.getElementById('tabSelect');
+        const fileListElement = document.getElementById('fileList');
+        const languageSelect = document.getElementById('languageSelect');
+        const saveFileBtn = document.getElementById('saveFileBtn');
+        const runBtn = document.getElementById('runBtn');
+        const codeEditorTextarea = document.getElementById('codeEditor');
+        const shaderEditor = document.getElementById('shaderEditor');
+        const vertexShaderCode = document.getElementById('vertexShaderCode');
+        const fragmentShaderCode = document.getElementById('fragmentShaderCode');
+        const htmlOutput = document.getElementById('htmlOutput');
+        const javaOutput = document.getElementById('javaOutput');
+        const shaderCanvas = document.getElementById('shaderCanvas');
+        const addFileBtn = document.getElementById('addFileBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadFiles = document.getElementById('uploadFiles');
+
+        // CodeMirror instances
+        let codeMirrorEditor;
+        let vertexShaderCM;
+        let fragmentShaderCM;
+
+        // Minecraft scene variables
+        let scene, camera, renderer, cube, animationFrameId;
+
+        function initCodeMirror() {
+            codeMirrorEditor = CodeMirror.fromTextArea(codeEditorTextarea, {
+                mode: 'htmlmixed',
+                lineNumbers: true,
+                theme: 'default',
+            });
+            vertexShaderCM = CodeMirror.fromTextArea(vertexShaderCode, {
+                mode: 'x-shader/x-vertex',
+                lineNumbers: true,
+                theme: 'default',
+            });
+            fragmentShaderCM = CodeMirror.fromTextArea(fragmentShaderCode, {
+                mode: 'x-shader/x-fragment',
+                lineNumbers: true,
+                theme: 'default',
+            });
+        }
+
+        function addFile(name = 'newfile.html', content = '', lang = 'htmlmixed') {
+            fileList.push({ name, content, lang });
+            currentFileIndex = fileList.length - 1;
+            renderFileList();
+            loadFile(currentFileIndex);
+        }
+
+        function renderFileList() {
+            fileListElement.innerHTML = '';
+            fileList.forEach((file, idx) => {
+                const li = document.createElement('li');
+                li.textContent = file.name;
+                if (idx === currentFileIndex) {
+                    li.classList.add('active');
+                }
+                li.onclick = () => {
+                    saveCurrentContent();
+                    currentFileIndex = idx;
+                    loadFile(idx);
+                    renderFileList();
+                }
+                fileListElement.appendChild(li);
+            });
+        }
+
+        function loadFile(index) {
+            const file = fileList[index];
+            if (!file) return;
+            languageSelect.disabled = false;
+            languageSelect.value = file.lang;
+            if (currentTab === 'files') {
+                shaderEditor.style.display = 'none';
+                codeMirrorEditor.getWrapperElement().style.display = 'block';
+                codeMirrorEditor.setOption('mode', file.lang);
+                codeMirrorEditor.setValue(file.content);
+                showOutput('html');
+            } else if (currentTab === 'shader') {
+                // for shader editor, load vertex and fragment shaders from file.content if JSON or load placeholders
+                codeMirrorEditor.getWrapperElement().style.display = 'none';
+                shaderEditor.style.display = 'flex';
+
+                try {
+                    const parsed = JSON.parse(file.content);
+                    if (parsed.vertexShader) {
+                        vertexShaderCM.setValue(parsed.vertexShader);
+                    } else {
+                        vertexShaderCM.setValue("// vertex shader code");
+                    }
+                    if (parsed.fragmentShader) {
+                        fragmentShaderCM.setValue(parsed.fragmentShader);
+                    } else {
+                        fragmentShaderCM.setValue("// fragment shader code");
+                    }
+                } catch(e) {
+                    vertexShaderCM.setValue("// vertex shader code");
+                    fragmentShaderCM.setValue("// fragment shader code");
+                }
+                showOutput('shader');
+            }
+        }
+
+        function saveCurrentContent() {
+            if (currentFileIndex === -1) return;
+            if (currentTab === 'files') {
+                fileList[currentFileIndex].content = codeMirrorEditor.getValue();
+                fileList[currentFileIndex].lang = languageSelect.value;
+            } else if (currentTab === 'shader') {
+                // Save vertex and fragment shader as JSON string
+                const data = {
+                    vertexShader: vertexShaderCM.getValue(),
+                    fragmentShader: fragmentShaderCM.getValue()
+                };
+                fileList[currentFileIndex].content = JSON.stringify(data, null, 2);
+                fileList[currentFileIndex].lang = 'json';
+            }
+        }
+
+        function showOutput(type) {
+            // Hide all output panels
+            htmlOutput.classList.remove('active');
+            shaderCanvas.classList.remove('active');
+            javaOutput.style.display = 'none';
+            cancelAnimationFrame(animationFrameId);
+            if (renderer) {
+                renderer.dispose && renderer.dispose();
+                renderer = null;
+            }
+
+            if (type === 'html') {
+                htmlOutput.classList.add('active');
+                htmlOutput.srcdoc = fileList[currentFileIndex]?.content || '';
+            } else if (type === 'shader') {
+                shaderCanvas.classList.add('active');
+                initMinecraftScene();
+                animate();
+            }
+        }
+
+        // Initialize Minecraft-like 3D Scene with Three.js
+        function initMinecraftScene() {
+            if (renderer) {
+                // Already initialized
+                return;
+            }
+            shaderCanvas.width = shaderCanvas.clientWidth;
+            shaderCanvas.height = shaderCanvas.clientHeight;
+
+            renderer = new THREE.WebGLRenderer({canvas: shaderCanvas, antialias: true});
+            renderer.setSize(shaderCanvas.clientWidth, shaderCanvas.clientHeight, false);
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x102010);
+
+            camera = new THREE.PerspectiveCamera(70, shaderCanvas.clientWidth / shaderCanvas.clientHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            // Simple cube
+            const geometry = new THREE.BoxGeometry();
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: false });
+            cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+
+            // Ambient light to simulate Minecraft style
+            const ambientLight = new THREE.AmbientLight(0x558855);
+            scene.add(ambientLight);
+
+            // Directional light
+            const directionalLight = new THREE.DirectionalLight(0xaaffaa, 0.7);
+            directionalLight.position.set(5, 10, 7);
+            scene.add(directionalLight);
+        }
+
+        function animate() {
+            animationFrameId = requestAnimationFrame(animate);
+            cube.rotation.x += 0.01;
+            cube.rotation.y += 0.01;
+            renderer.render(scene, camera);
+        }
+
+        // Event Listeners
+        tabSelect.addEventListener('change', () => {
+            saveCurrentContent();
+            currentTab = tabSelect.value;
+            if (currentTab === 'shader') {
+                languageSelect.disabled = true;
+                codeMirrorEditor.getWrapperElement().style.display = 'none';
+                shaderEditor.style.display = 'flex';
+                showOutput('shader');
+            } else if (currentTab === 'files') {
+                languageSelect.disabled = false;
+                codeMirrorEditor.getWrapperElement().style.display = 'block';
+                shaderEditor.style.display = 'none';
+                showOutput('html');
+            }
+            // Reload file for new tab
+            if (currentFileIndex !== -1) loadFile(currentFileIndex);
+        });
+
+        languageSelect.addEventListener('change', () => {
+            if (currentTab === 'files' && currentFileIndex !== -1) {
+                fileList[currentFileIndex].lang = languageSelect.value;
+                codeMirrorEditor.setOption('mode', languageSelect.value);
+            }
+        });
+
+        saveFileBtn.addEventListener('click', () => {
+            saveCurrentContent();
+            alert('File saved.');
+        });
+
+        runBtn.addEventListener('click', () => {
+            saveCurrentContent();
+            if (currentTab === 'files') {
+                showOutput('html');
+            } else if (currentTab === 'shader') {
+                showOutput('shader');
+            }
+        });
+
+        addFileBtn.addEventListener('click', () => {
+            if (currentTab === 'files') {
+                addFile(`file${fileList.length + 1}.html`, "<!-- Your code here -->", 'htmlmixed');
+            } else if (currentTab === 'shader') {
+                addFile(`shader${fileList.length + 1}.json`, JSON.stringify({
+                    vertexShader: "// vertex shader code",
+                    fragmentShader: "// fragment shader code"
+                }, null, 2), 'json');
+            }
+        });
+
+        uploadBtn.addEventListener('click', () => uploadFiles.click());
+        uploadFiles.addEventListener('change', (event) => {
+            const files = event.target.files;
+            for (let f of files) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    let content = e.target.result;
+                    let lang = 'htmlmixed';
+                    if (f.name.endsWith('.js')) lang = 'javascript';
+                    else if (f.name.endsWith('.json')) lang = 'json';
+                    else if (f.name.endsWith('.css')) lang = 'css';
+                    else if (f.name.endsWith('.java') || f.name.endsWith('.c') || f.name.endsWith('.cpp')) lang = 'clike';
+                    addFile(f.name, content, lang);
+                };
+                reader.readAsText(f);
+            }
+            uploadFiles.value = ''; // reset input
+        });
+
+        // Initialize
+        window.onload = () => {
+            initCodeMirror();
+            addFile('index.html', 'Write HTML here', 'htmlmixed');
+            languageSelect.value = 'htmlmixed';
+        };
+    </script>
 </body>
 </html>
