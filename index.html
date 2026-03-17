@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Code Editor (HTML, CSS, JS, JSON, WASM)</title>
+    <title>Code Editor</title>
     <link rel="stylesheet" href="styles.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css" rel="stylesheet" />
 </head>
@@ -14,6 +14,11 @@
                 <button id="addFileBtn">Add File +</button>
                 <input type="file" multiple id="uploadFiles" style="display:none" />
                 <button id="uploadBtn">Upload Files</button>
+                <select id="tabSelect" title="Switch workspace tab" aria-label="Workspace tabs">
+                    <option value="files">Files Editor</option>
+                    <option value="shader">GLSL Shader Editor</option>
+                    <option value="minecraft">Minecraft 3D Scene</option>
+                </select>
             </div>
             <ul id="fileList"></ul>
         </div>
@@ -24,11 +29,28 @@
                 <button id="runBtn">Run</button>
             </div>
             <textarea id="codeEditor"></textarea>
+
+            <!-- GLSL Shader Editor controls (hidden by default) -->
+            <div id="shaderEditor" style="display:none; height: 100%; flex-direction: column;">
+                <div style="display:flex; gap:10px; height: 45%;">
+                    <div style="flex:1; display:flex; flex-direction: column;">
+                        <h4 style="margin:4px 0 2px 0; color:#b0d187;">Vertex Shader</h4>
+                        <textarea id="vertexShaderCode" style="flex:1; font-family: monospace; font-size: 13px;"></textarea>
+                    </div>
+                    <div style="flex:1; display:flex; flex-direction: column;">
+                        <h4 style="margin:4px 0 2px 0; color:#b0d187;">Fragment Shader</h4>
+                        <textarea id="fragmentShaderCode" style="flex:1; font-family: monospace; font-size: 13px;"></textarea>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="outputPanel">
             <h2>Output</h2>
             <iframe id="htmlOutput"></iframe>
             <pre id="javaOutput" style="display:none;"></pre>
+
+            <canvas id="shaderCanvas" style="display:none; width: 100%; height: 100%; background:#111;"></canvas>
+            <div id="minecraftContainer" style="display:none; width: 100%; height: 100%; background: #102010;"></div>
         </div>
     </div>
 
@@ -38,6 +60,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/json/json.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/clike/clike.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
+
     <script src="script.js"></script>
 </body>
 </html>
