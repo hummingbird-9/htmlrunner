@@ -9,7 +9,7 @@ body {
 }
 
 h1.title {
-  background: #5c6ac4;
+  background: #00e00a;
   color: white;
   margin: 0;
   padding: 10px 15px;
@@ -68,7 +68,7 @@ h1.title {
 }
 
 #fileList li.active {
-  background: #5c6ac4;
+  background: #00e00a;
   color: white;
 }
 
@@ -105,7 +105,7 @@ h1.title {
 }
 
 #saveFileBtn, #runBtn {
-  background: #5c6ac4;
+  background: #00e00a;
   color: white;
   border: none;
   cursor: pointer;
