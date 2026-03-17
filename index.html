@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Code Editor (HTML, CSS, JS, JSON, WASM)</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css" rel="stylesheet" />
+</head>
+<body>
+    <h1 class="title">Code Editor</h1>
+    <div id="mainContainer">
+        <div id="fileListPanel">
+            <div id="fileManagerHeader">
+                <button id="addFileBtn">Add File +</button>
+                <input type="file" multiple id="uploadFiles" style="display:none" />
+                <button id="uploadBtn">Upload Files</button>
+            </div>
+            <ul id="fileList"></ul>
+        </div>
+        <div id="editorPanel">
+            <div id="editorHeader">
+                <select id="languageSelect" disabled></select>
+                <button id="saveFileBtn">Save File</button>
+                <button id="runBtn">Run</button>
+            </div>
+            <textarea id="codeEditor"></textarea>
+        </div>
+        <div id="outputPanel">
+            <h2>Output</h2>
+            <iframe id="htmlOutput"></iframe>
+            <pre id="javaOutput" style="display:none;"></pre>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/json/json.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/clike/clike.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
